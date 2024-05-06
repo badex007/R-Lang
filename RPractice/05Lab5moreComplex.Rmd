@@ -1,0 +1,501 @@
+---
+title: "Lab 5"
+author: "Ines Arana"
+date: "2023/24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Clearing the environment.
+
+```{r}
+rm(list=ls())
+```
+
+Loading  library (package)  tidyverse as well as some new libraries for the generation of tree maps, dendrograms and wordclouds.
+
+```{r warnings = F, message=F}
+
+library(tidyverse)
+library(treemapify)
+library(igraph)
+library(ggraph)
+library(ggwordcloud)
+```
+
+Loading the data files.
+
+```{r}
+provenOilReserveWEurope <- read.csv("provenOilReserveWEurope.csv", header=T, stringsAsFactors=T)
+#channels <- read.csv("channels.csv", header=T, stringsAsFactors=T)
+#consumptionTransposed <- read.csv("consumptionTransposed.csv", header=T, stringsAsFactors=T)
+#consumptionBySource <- read.csv("consumptionBySource.csv", header=T, stringsAsFactors=T)
+#sales <- read.csv("scottishSales.csv", header=T, stringsAsFactors = T)
+#arrivals <- read.csv("arrivals.csv", header=T)
+```
+
+
+## Plotting channels
+
+
+```{r}
+p <- ggplot(channels, aes(n))
+p <- p+geom_line(aes(y = electric, colour= "electric"))
+p <- p+geom_line(aes(y = length, colour ="length"))
+p <- p+geom_line(aes(y = area, colour= "area"))
+p <- p+labs( colour="channels")
+p
+```
+
+Clearly the above plot needs improving, especially the y label axis. Also, it needs a title.
+
+### Adding a title and better labels
+
+```{r}
+p <- ggplot(channels, aes(n))
+p <- p+geom_line(aes(y = electric, colour= "electric"))
+p <- p+geom_line(aes(y = length, colour ="length"))
+p <- p+geom_line(aes(y = area, colour= "area"))
+p <- p + labs(colour="channels")
+p <- p + labs(title="Different channels sensation according to level of stimuli")
+p <- p + labs(x= "Size of stimuli", y= "Amount of sensation")
+p
+```
+
+### Adding better legend values
+
+```{r}
+p <- ggplot(channels, aes(n))
+p <- p+geom_line(aes(y = electric, colour = "electric current"))
+p <- p+geom_line(aes(y = length, colour = "object’s length"))
+p <- p+geom_line(aes(y = area, colour = "object’s area"))
+p <- p + labs(colour="channels")
+p <- p + labs(title="Different channels sensation according to level of stimuli")
+p <- p + labs(x= "Size of stimuli", y= "Amount of sensation")
+p
+
+```
+
+### Changing y axis limits  to see detail for bottom part of plot
+
+```{r}
+p <- ggplot(channels, aes(n))
+p <- p+geom_line(aes(y = electric, colour = "electric current"))
+p <- p+geom_line(aes(y = length, colour = "object’s length"))
+p <- p+geom_line(aes(y = area, colour = "object’s area"))
+p <- p + labs(colour="channels")
+p <- p + labs(title="Different channels sensation according to level of stimuli")
+p <- p + labs(x= "Size of stimuli", y= "Amount of sensation")
+p <- p+ylim(0,50) 
+p
+
+```
+
+A warning will appear as not all data for electric is displayed (some of it falls outside the y limits).
+
+
+### Removing electric
+
+```{r}
+# make a copy
+channels2 <- channels
+channels2$electric <-NULL 
+p <- ggplot(channels2, aes(n))
+p <- p+geom_line(aes(y = length, colour = "object’s length"))
+p <- p+geom_line(aes(y = area, colour = "object’s area"))
+p <- p + labs(colour="channels")
+p <- p + labs(title="Different channels sensation according to level of stimuli")
+p <- p + labs(x= "Size of stimuli", y= "Amount of sensation")
+p
+
+```
+
+### Removing all rows where the value for electric is over 50.
+
+```{r}
+
+channels2 <- channels |> filter(electric < 50)
+p <- ggplot(channels2, aes(n)) 
+p <- p+geom_line(aes(y = electric, colour = "electric current"))
+p <- p+geom_line(aes(y = length, colour = "object’s length"))
+p <- p+geom_line(aes(y = area, colour = "object’s area"))
+p <- p + labs(colour="channels")
+p <- p + labs(title="Different channels sensation according to level of stimuli")
+p <- p + labs(x= "Size of stimuli", y= "Amount of sensation")
+p
+
+```
+
+## Facets
+
+
+### Side by side plots
+
+```{r}
+p<- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_line(aes(y = MT.Barrels))
+p<- p + facet_grid(. ~ Country)
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent")
+p
+```
+
+
+### One plot under the other
+
+```{r}
+p<- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_line(aes(y = MT.Barrels))
+p<- p + facet_grid(Country ~ .)
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent")
+p
+```
+
+#### Adding colour
+
+```{r}
+p <- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_line(aes(y = MT.Barrels, colour=Country))
+p <- p + facet_grid(Country ~ .)
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour ="European country")
+p
+```
+
+#### Free y axis (different y scale for different plots)
+
+```{r}
+p <- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_line(aes(y = MT.Barrels, colour=Country))
+p <- p + facet_grid(Country ~ ., scales="free_y")
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour ="European country")
+p
+```
+
+#### Free axis (both x and y axis)
+
+```{r}
+p<- ggplot(provenOilReserveWEurope, aes(Year)) 
+p <- p+geom_line(aes(y = MT.Barrels, colour=Country,linetype=Country))
+p<- p + facet_grid(Country ~ ., scales = "free")
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour="European country",linetype ="European country")
+p
+```
+
+#### Using a point geom
+
+```{r}
+p <- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_point(aes(y = MT.Barrels, colour=Country))
+p <- p + facet_grid(Country ~ ., scales="free_y")
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour ="European country")
+p
+```
+
+#### Using both point and line geoms
+
+```{r}
+p <- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_point(aes(y = MT.Barrels, colour=Country))
+p <- p+geom_line(aes(y = MT.Barrels, colour=Country))
+p<- p + facet_grid(Country ~ ., scales="free_y")
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour ="European country")
+p
+```
+
+#### Using free space - space used for plot depends on data shown.
+
+```{r}
+p <- ggplot(provenOilReserveWEurope, aes(Year))
+p <- p+geom_point(aes(y = MT.Barrels, colour=Country))
+p <- p+geom_line(aes(y = MT.Barrels, colour=Country))
+p <- p + facet_grid(Country ~ ., scales = "free", space="free_y")
+p <- p + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour ="European country")
+p
+
+
+```
+
+## Tree maps
+
+```{r}
+p <- ggplot(sales, 
+            aes(area = Sales, 
+                fill = Category,
+                subgroup=Category, 
+                label=City ))
+p <- p + geom_treemap()
+p<- p+ geom_treemap_subgroup_border() 
+p <- p +   geom_treemap_text()
+p<- p +  geom_treemap_subgroup_text() 
+p <- p + 
+  labs(title="Amount of sale by to product category and city", colour= "Sale category")
+p
+```
+
+
+```{r}
+p <- ggplot(sales, 
+            aes(area = Sales, 
+                fill = Category,
+                subgroup=Category, 
+                label=City ))
+p <- p + geom_treemap(layout="squarified")
+p<- p+ geom_treemap_subgroup_border(colour = "white", size = 5) 
+p <- p +   geom_treemap_text(place = "centre",
+                             size = 11, grow=TRUE)
+p<- p +  geom_treemap_subgroup_text(place = "centre", 
+                                    grow = TRUE,
+                             alpha = 0.25, 
+                             colour = "black",
+                             fontface = "italic") 
+p <- p + 
+  labs(title="Amount of sale by to product category and city", colour= "Sale category")
+p
+```
+
+```{r}
+p <- ggplot(sales, 
+            aes(area = Sales, 
+                fill = Category,
+                subgroup=Category, 
+                label=paste(City,Sales,sep = "\n")))
+p <- p + geom_treemap(layout="squarified")
+p<- p+ geom_treemap_subgroup_border(colour = "white", size = 5) 
+p <- p +   geom_treemap_text(place = "centre",
+                             size = 11, grow=TRUE)
+p<- p +  geom_treemap_subgroup_text(place = "centre", 
+                                    grow = TRUE,
+                             alpha = 0.25, 
+                             colour = "black",
+                             fontface = "italic") 
+p <- p + 
+  labs(title="Amount of sale by to product category and city (in £)", colour= "Sale category")
+p
+```
+
+## Dendrograms
+
+```{r}
+## Getting the tree from the root to the leaves
+link_top_2 <- sales |>
+  select(Concept, City) |>
+  unique() |>
+  rename(from=Concept, to=City)
+link2_3 <- sales |>
+  select(City, Sales) |>
+  unique() |> 
+  rename(from=City, to= Sales)
+
+link2_3$to <-  as.factor(link2_3$to) 
+
+# Getting all the links into one data frame
+links <- rbind(link_top_2, link2_3)
+ 
+dendro <- graph_from_data_frame(links)
+```
+
+
+```{r}
+p <- ggraph(dendro, layout = 'dendrogram',
+            circular = FALSE) 
+p <- p + geom_node_label(aes(label = name),  size=3,
+                  repel = TRUE, colour="darkgreen",fill="lightyellow",show.legend = TRUE)
+p <- p + geom_edge_diagonal(colour="darkgreen")
+p <- p + geom_node_point(colour="darkgreen")
+p <- p + labs(title="Sales by store (£)")
+p
+```
+
+
+```{r}
+p <- ggraph(dendro, layout = 'dendrogram', 
+            circular = TRUE) 
+p <- p + geom_node_label(aes(label = name),  
+                  repel = TRUE, show.legend = TRUE, size=4)
+                  #, family = "serif") +
+p <- p + labs(title="Sales by store (£)")
+
+p <- p + geom_edge_diagonal()
+p <- p + geom_node_point()
+#p <- p + theme_void()
+p
+```
+```{r}
+
+# This produces a data frame with the destinations 
+# and the number of times they appear in the dataset
+destinations <- as.data.frame(table(arrivals$Destination))
+# Give the columns proper names
+names(destinations) <- c("destination","count")
+# We are only considering destinations more frequent than average
+m <- mean(destinations$count)
+destinations <- destinations |> filter(count>m)
+
+# produce a word cloud
+set.seed(123)
+p <- ggplot(destinations, aes(label = destination, size=count)) 
+p <- p +  geom_text_wordcloud_area(colour="blue")
+p <- p +   scale_size_area(max_size = 40)
+p <- p +   labs(title= "Most common destination ports for vessels departing from Barcelona")
+p
+```
+
+Different seed, so probably a different, equally valid, wordcloud. Note that the data does not need to be processed as was put into variable "destinations" earlier.
+
+```{r}
+
+set.seed(3)
+p <- ggplot(destinations, aes(label = destination, size=count)) 
+p <- p +  geom_text_wordcloud_area(colour="blue")
+p <- p +   scale_size_area(max_size = 40)
+p <- p +   labs(title= "Most common destination ports for vessels departing from Barcelona")
+p
+```
+
+
+
+# Exercises
+
+The code for each exercise is supplied below. The student should interpret the resulting output and think about any conclusions which can be drawn from the visualisations. The student should also consider the advantages/disadvantages of the visualisations and any alternative visualisations.
+
+### Exercise 1
+
+
+First a solution with colours for the various energy sources chosen by default.
+
+```{r}
+p <- ggplot(consumptionTransposed, aes(Year))
+p <- p + geom_point(aes(y=Oil, colour="Oil") )
+p <- p + geom_point(aes(y=Gas, colour="Gas") )
+ p <- p + geom_point(aes(y=Coal, colour="Coal") )
+p <- p + geom_point(aes(y=Renewables, colour="Renewables (all kinds)"))
+p <- p + labs(x= "Year", y= "Millions of tons of oil equivalent", title="Energy consumed", colour = "Energy source")
+                       
+p
+```
+
+
+The following  solution is more complicated, but uses  our chosen colour for each  energy source. 
+
+
+```{r}
+# Assigning the colours I want to use to the labels in the legand area
+plotColours <- c("Oil" = "brown", "Gas"="yellow", "Coal"= "black", "Renewables (all kinds)"="green")
+
+p <- ggplot(consumptionTransposed, aes(Year))
+p <- p + geom_point(aes(y=Oil, colour="Oil") )
+p <- p + geom_point(aes(y=Gas, colour="Gas") )
+ p <- p + geom_point(aes(y=Coal, colour="Coal") )
+p <- p + geom_point(aes(y=Renewables, colour="Renewables (all kinds)"))
+p <- p + labs(x= "Year", y= "Millions of tons of oil equivalent", title="Energy consumed",colour="Energy source")
+p <- p+ scale_colour_manual(values=plotColours)
+                     
+p
+```
+
+### Exercise 2
+
+```{r}
+p <- ggplot(consumptionBySource, aes(Year))
+p <- p+geom_line(aes(y = MTOE, colour=Source))
+p <- p + facet_grid(Source ~ ., scales="free_y")
+p <- p + labs(x= "Year", y= "Millions of tons of oil equivalent", title="Energy consumed", colour="Energy source")
+p
+```
+
+### Exercise 3
+
+```{r}
+p <- ggplot(consumptionBySource, aes(Year))
+p <- p+geom_point(aes(y = MTOE, colour=Source), shape= 24)
+p <- p + facet_grid(Source ~ ., scales="free_y")
+p <- p + labs(x= "Year", y= "Millions of tons of oil equivalent", title="Energy consumed", colour="Energy source")
+p
+```
+
+### Exercise 3 - alternative if we want the triangles to be filled
+
+```{r}
+p <- ggplot(consumptionBySource, aes(Year))
+p <- p+geom_point(aes(y = MTOE, colour=Source, fill=Source), shape= 24)
+p <- p + facet_grid(Source ~ ., scales="free_y")
+p <- p + labs(x= "Year", y= "Millions of tons of oil equivalent", title="Energy consumed", fill= "Source of Energy", colour = "Source of Energy")
+p
+```
+
+### Exercise 4
+
+```{r}
+# This produces a data frame with the destinations 
+# and the number of times they appear in the dataset
+country <- as.data.frame(table(arrivals$FlagCountry))
+# Give the columns proper names
+names(country) <- c("countryName","count")
+
+# produce a word cloud
+set.seed(123)
+p <- ggplot(country, aes(label = countryName, size=count)) 
+p <- p +  geom_text_wordcloud_area(colour="blue")
+  #geom_text_wordcloud(shape = "diamond") +
+p <- p +   scale_size_area(max_size = 40)
+p <- p +   labs(title= "Most common country for vessels departing from Barcelona")
+p
+
+
+```
+
+### Exercise 5
+
+```{r}
+## Getting the tree from the root to the leaves
+workers <- read.csv("workers.csv", header=T, stringsAsFactors = T)
+
+link_top_2 <- workers |>
+  select(Company, Site) |>
+  unique() |>
+  rename(from=Company, to=Site)
+
+link_2_3 <- workers |>
+  select(Site, Director) |>
+  unique() |>
+  rename(from=Site, to=Director)
+
+link_3_4 <- workers |>
+  select(Director, Production) |>
+  unique() |> 
+  rename(from=Director, to= Production)
+
+# Getting all the links into one data frame
+links <- rbind(link_top_2, link_2_3, link_3_4)
+ 
+dendro2 <- graph_from_data_frame(links)
+```
+```{r}
+p <- ggraph(dendro2, layout = 'dendrogram',
+            circular = FALSE) 
+p <- p + geom_node_label(aes(label = name),  size=3,
+                  repel = TRUE, colour="darkgreen",fill="lightyellow",show.legend = TRUE)
+p <- p + geom_edge_diagonal(colour="darkgreen")
+p <- p + geom_node_point(colour="darkgreen")
+p <- p + labs(title="Productions (including director and site)")
+p
+```
+
+### Exercise 6
+
+```{r}
+p <- ggplot(workers, 
+            aes(area = Budget, 
+                fill = Site,
+                subgroup=Site, 
+                label=paste(Director, Production, sep="\n")))
+p <- p + geom_treemap()
+p<- p+ geom_treemap_subgroup_border() 
+p <- p +   geom_treemap_text()
+p<- p +  geom_treemap_subgroup_text() 
+p <- p + 
+  labs(title="Production budgets")
+p
+```

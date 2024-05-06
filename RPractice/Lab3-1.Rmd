@@ -1,0 +1,223 @@
+---
+title: "Lab3"
+author: '007'
+date: "2024-02-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#load library tidyverse
+```{r}
+library(tidyverse)
+```
+
+#laod ggplot
+```{r}
+library(ggplot2)
+```
+
+#download data-set consumptionNoOil
+```{r}
+consumptionNoOil <- read.csv("consumptionNoOil.csv", header = T, stringsAsFactors = T)
+```
+
+```{r}
+summary(consumptionNoOil)
+#head(consumptionNoOil, 10)
+
+```
+
+#Aesthetics
+```{r}
+cno <- ggplot(data = consumptionNoOil, aes(x=MTOE, y = EstMTOE))
+cno <- cno + geom_point()
+cno
+```
+#can also be written as
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(MTOE, EstMTOE))
+cno <- cno + geom_point(colour="darkgreen")
+cno
+
+```
+
+#using column source and shape
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(MTOE, EstMTOE, colour=Source, shape = Source))
+cno <- cno + geom_point()
+cno
+```
+
+#using line plot to display time data
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(Year, MTOE, colour=Source))
+cno <- cno + geom_line()
+cno
+```
+
+#Groups plot
+#case 1: Multiple groups with one aesthetics
+#plot year vs consumption by energy source
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(Year, MTOE, group=Source))
+cno <- cno + geom_line(size = 2, colour="lightblue",)
+cno
+```
+
+#using point plot
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(Year, MTOE, group=Source))
+cno <- cno + geom_point(colour="lightpink")
+cno <- cno + geom_line(colour="lightblue")
+cno
+```
+
+#adding shape diagram
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(Year, MTOE, group=Source))
+cno <- cno + geom_point(shape = 23, colour="red", size = 3,fill = "lightblue")
+#cno <- cno + geom_line(colour="lightblue")
+cno
+```
+
+#case 2: Different groups on different layers:
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(Year, MTOE, group = Source))
+cno <- cno + geom_line()
+cno <- cno + geom_smooth(aes(group = 1), formula = 'y~x', method = "lm", size = 2, se = F)
+cno
+```
+
+testing
+```{r}
+rm(cno)
+cno <- ggplot(consumptionNoOil, aes(Year, MTOE, group = Source))
+cno <- cno + geom_line()
+cno <- cno + geom_smooth(aes(group = Source), formula = 'y~x',  method = "lm", size = 1, se = F)
+cno
+```
+
+#download data-set ProvenOilReservesZerosT
+```{r}
+ProvenOilReservesZerosT <- read.csv("ProvenOilReservesZerosT.csv", header = T)
+```
+
+#replacing empty value(-) with NA(not available)
+```{r}
+ProvenOilReservesZerosT |> mutate_all(funs(replace(., .== "-", as.double(NA))))
+```
+
+#exercises
+##download data-set ProvenOilReservesZerosT
+```{r}
+rm(ProvenOilReservesZerosT)
+ProvenOilReservesZerosT <- read.csv("ProvenOilReservesZerosT.csv", header = T, stringsAsFactors = T)
+```
+
+#replacing empty value(-) with NA(not available)
+```{r}
+ProvenOilReservesZerosT |>  mutate_all(funs(replace(., .== "-", as.double(NA))))
+```
+
+#scatterplot year vs denmark
+```{r}
+prs <- ggplot(ProvenOilReservesZerosT, aes(MTBarrels, Denmark))
+prs <- prs + geom_point(shape = 22, size = 4, colour = "darkblue" )
+prs
+
+```
+
+#line-plot year vs italy
+```{r}
+rm(prs)
+prs <- ggplot(ProvenOilReservesZerosT, aes(MTBarrels, Italy))
+prs <- prs + geom_line(size = 2, colour = "orange" )
+prs
+
+```
+
+#scatter-plot year vs united kingdom
+```{r}
+rm(prs)
+prs <- ggplot(ProvenOilReservesZerosT, aes(MTBarrels, United.Kingdom,colour = United.Kingdom ))
+prs <- prs + geom_point()
+prs
+
+```
+
+#scatter-plot year vs Norway
+```{r}
+rm(prs)
+prs <- ggplot(ProvenOilReservesZerosT, aes(MTBarrels, Norway,size=Norway ))
+prs <- prs + geom_point(shape = 24, colour="red",)
+prs
+```
+
+#download data-set ProvenOilReserveWEurope
+```{r}
+ProvenOilReserveWEurope <- read.csv("ProvenOilReserveWEurope.csv", header = T, stringsAsFactors = T)
+```
+
+#Line-plot Year by country
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope,aes(Year, MT.Barrels, colour = Country))
+pre <- pre + geom_line()
+pre
+```
+
+#Line-plot Year by country + summary smooth
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope,aes(Year, MT.Barrels, colour = Country))
+pre <- pre + geom_line()
+pre <- pre + geom_smooth(aes(group = 1), formula = 'y~x', method = "lm", size = 2, se = F)
+pre
+```
+
+#using point(scattered-plot) Year by country + summary smooth
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope,aes(Year, MT.Barrels, colour = Country))
+pre <- pre + geom_point()
+pre <- pre + geom_smooth(aes(group = 1), formula = 'y~x', method = "auto",se = F)
+pre
+```
+
+#selecting specific data to store in a variable
+```{r}
+to1990 <- ProvenOilReserveWEurope |> filter(Year %in% c(1980:1990))
+summary(to1990)
+```
+
+#Heat Map
+```{r}
+Hmp <- ggplot(to1990, aes(Year, Country))
+Hmp <- Hmp + geom_tile(aes(alpha=MT.Barrels), fill="blue")
+Hmp
+```
+
+#Heat Map 1990 to 2001
+```{r}
+to2001 <- ProvenOilReserveWEurope |> filter(Year %in% c(1990:2001))
+summary(to2001)
+```
+
+#plotting the Heatmap
+```{r}
+rm(Hmp)
+Hmp <- ggplot(to2001, aes(Year, Country))
+Hmp <- Hmp + geom_tile(aes(alpha=MT.Barrels), fill="red")
+Hmp
+```
+

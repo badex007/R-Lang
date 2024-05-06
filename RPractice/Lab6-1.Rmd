@@ -1,0 +1,142 @@
+---
+title: "LAB6-1"
+author: '007'
+date: "2024-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#load required dataset
+```{r}
+browserdata <- read.csv("browserdata.csv", header = T, stringsAsFactors = T)
+```
+
+#load required dataset
+```{r}
+consumptionTransposed2 <- read.csv("consumptionTransposed2.csv", header = T, stringsAsFactors = T)
+```
+
+#Applying different functions to view 
+```{r}
+#summary(consumptionTransposed2)
+#str(consumptionTransposed2)
+#class(consumptionTransposed2)
+#head(consumptionTransposed2)
+tail(consumptionTransposed2)
+```
+
+#obtaining summary of a column
+```{r}
+consumptionTransposed2 |> select(Oil) |> summary()
+```
+
+#using the pull() function to extract data
+```{r}
+consumptionTransposed2 |> pull(Gas) |> mean()
+consumptionTransposed2 |> pull(Gas) |> quantile()
+consumptionTransposed2 |> pull(Gas) |> fivenum()
+consumptionTransposed2 |> pull(Gas) |> sd()
+```
+
+#summarizing browserdata 
+```{r}
+summary(browserdata)
+str(browserdata)
+class(browserdata)
+head(browserdata)
+tail(browserdata)
+```
+#using the pull function for browser data
+```{r}
+browserdata |> pull(level) |> mean()
+browserdata |> pull(level) |> median()
+browserdata |> pull(level) |> sd()
+browserdata |> pull(level) |> var()
+browserdata |> pull(level) |> range()
+browserdata |> pull(level) |> IQR()
+browserdata |> pull(level) |> min()
+browserdata |> pull(level) |> max()
+browserdata |> pull(level) |> quantile()
+browserdata |> pull(level) |> fivenum()
+```
+
+#frequency count
+```{r}
+counts <- browserdata |> pull(Browser) |> table()
+counts
+```
+#to get proportions
+```{r}
+prop.table(counts)
+```
+
+#getting a two way table
+```{r}
+freqBrowser <- xtabs(~ Browser+Membership, data = browserdata)
+freqBrowser
+```
+
+#to get probabilities of table
+```{r}
+prop.table(freqBrowser, 1) #each row add up to 1
+prop.table(freqBrowser, 2) #each column add up to 1
+```
+
+#coverting todata frame(using freqBrowser)
+```{r}
+e <- as.data.frame(freqBrowser)
+
+```
+
+#plot when analysing single variables
+```{r}
+#for a simple bar plot
+freqb <- ggplot(e, aes(x= Membership, y=Freq, fill=Browser))
+freqb <- freqb + geom_bar(stat="identity")
+freqb <- freqb + labs(title = "Browser use by membership type", x = "Membership type", y = "Frequency count") #adding description
+freqb <- freqb + scale_fill_brewer(palette = "Set1") #changing colour scheme and background
+freqb <- freqb + theme_classic()
+freqb
+
+```
+
+#showing the above data in a different column
+```{r}
+freqb <- ggplot(e, aes(x= Membership, y=Freq, fill=Browser))
+freqb <- freqb + geom_bar(stat="identity", position = position_dodge())
+freqb <- freqb + labs(title = "Browser use by membership type", x = "Membership type", y = "Frequency count") #adding description
+freqb <- freqb + scale_fill_brewer(palette="Dark2") #changing colour scheme and background
+freqb <- freqb + theme_classic()
+freqb
+```
+
+#plotting histogram for daily time spent
+#also adding colour, titles, labels and line
+```{r}
+rm(mpd)
+mpd <- ggplot(browserdata, aes(x= MinsPerDay))
+mpd <-  mpd + geom_histogram(aes(y=..density..), col="red", fill="red", binwidth = 20)
+mpd <- mpd + labs(x="Average time spent online (mins/day)", y="Dendity")
+mpd <- mpd + geom_density(col="blue")
+mpd <- mpd + theme_classic()
+mpd
+```
+
+#using Dot plots
+```{r}
+brd <- ggplot(browserdata, aes(x=Use))
+brd <- brd + geom_dotplot(col="red", fill="red", binwidth = 0.05)
+#add labels
+brd <- brd + labs(x="Use level", y="")
+brd <- brd + theme_classic()
+brd
+```
+
+#using box plot
+```{r}
+
+```
+

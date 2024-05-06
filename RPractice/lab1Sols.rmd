@@ -1,0 +1,322 @@
+---
+title: "Lab 1 - feedback solutions"
+author: "Ines Arana"
+date: "Session 2023-24"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Libraries
+
+Loading the required library. In the lab sheet this is done on page 5.
+Note: ggplot2 is used for plotting data. As this library is loaded as part of tidyverse, if the latter is loaded, there is no need to explicitly load the former.
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+## Variables 
+
+```{r}
+x <- 7
+x
+```
+
+### Vectors
+
+More complex variables
+
+```{r}
+energy_source <- c("oil","gas","wood","sun","wind","wave",
+                   "hydroelectric","nuclear")
+energy_source
+```
+
+Displaying the 3rd element
+
+```{r}
+energy_source[3]
+```
+
+Displaying items 4 to 6
+
+```{r}
+energy_source[4:6]
+```
+
+Creating a new vector from values in another vector
+
+```{r}
+traditional_source <- c(energy_source[1:3],energy_source[5],
+                        energy_source[7])
+
+traditional_source
+```
+
+
+Getting the number of items in a vector.
+
+```{r}
+length(traditional_source)
+```
+
+## Arithmetic operations
+
+Creating some variables using operators.
+
+```{r}
+x <- 4
+y <- x + 20
+z <- y/x
+```
+
+Checking the values of x, y and z
+
+```{r}
+x
+y
+z
+```
+
+### Operations with a vector
+
+```{r}
+numbers <- c(1,2,3,4,5,6,7,8,9,10)
+numbers * 10
+```
+
+Using 2 vectors
+
+```{r}
+numbers * c(10,20,30)
+numbers * c(10,20,30,10,20,30,10,20,30,10)
+```
+
+## Logical operators
+
+```{r}
+numbers > 7
+```
+
+Combination of expressions - numbers greater than 7 or smaller than 2
+
+```{r}
+(numbers > 7) | (numbers< 2)
+
+```
+
+## Various examples of plots using the power of a number dataset.
+
+First we create the dataset with numbers 1 to 6.
+
+```{r}
+my_nums <-(1:6)
+powers <- my_nums^2
+```
+
+Using a tibble
+
+```{r}
+powerData <- tibble(my_nums,powers)
+powerData
+```
+
+Using a data frame
+
+```{r}
+powerdata2<- data.frame(my_nums,powers)
+powerdata2
+```
+
+We can plot now. This code will not do much, as there is no specification of how to plot the data.
+
+```{r}
+ggplot(data=powerData)
+```
+
+We can add to the above code to state we want a scatterplot (use geom_point) and which the x and y variables are.
+
+
+```{r} 
+ggplot(data=powerData) + 
+  geom_point(aes(x=my_nums, y=powers))
+```
+
+
+The code above is the same as the one below, where each line contains one aspect of the definition of the plot.
+
+```{r}
+p <- ggplot(data=powerData)
+p<- p + geom_point(aes(x=my_nums, y=powers))
+p
+```
+
+Adding a title, labels and a subtitle.
+
+```{r}
+p <- p + labs(title= "Numbers against their powers")
+p <- p + labs( x = "Number", y = "Power of number")
+p <- p + labs(subtitle = "Simple scatterplot")
+p
+```
+
+All the code put together, plus adding colour to the points.
+
+```{r}
+p <- ggplot(data=powerData)
+p <- p + geom_point(aes(x=my_nums, y=powers), colour="red")
+p <- p + labs(title= "Numbers against their powers")
+p <- p + labs( x = "Number", y = "Power of number")
+p <- p + labs(subtitle = "Simple scatterplot")
+p
+```
+
+
+
+# Exercise 1
+
+
+Anscombe Quartet exercise
+
+Plotting each dataset.
+
+### Dataset 1
+```{r}
+set1_x <- c(10,8,13,9,11,14,6,4,12,7,5)
+set1_y <- c(8.04,6.95,7.58,8.81,8.33,9.96,7.24,4.26, 10.84,4.82,5.68)
+data1 <- tibble(set1_x,set1_y)
+ggplot(data=data1) + geom_point(aes(x=set1_x, y=set1_y))
+```
+
+
+
+### Dataset 2
+
+```{r}
+
+set2_x <- c(10,8,13,9,11,14,6,4,12,7,5)
+set2_y <- c(9.14,8.14,8.74,8.77,9.26,8.10,6.13,3.10,9.13,7.26,4.74)
+data2 <- tibble(set2_x,set2_y)
+ggplot(data=data2) + geom_point(aes(x=set2_x, y=set2_y))
+```
+
+
+### Dataset 3
+
+```{r}
+set3_x <- c(10,8,13,9,11,14,6,4,12,7,5)
+set3_y <- c(7.46,6.77,12.74,7.11,7.81,8.84,6.08,5.39,8.15,6.42,5.73)
+data3 <- tibble(set3_x,set3_y)
+ggplot(data=data3) + geom_point(aes(x=set3_x, y=set3_y))
+```
+
+
+
+### Dataset 4
+
+```{r}
+set4_x <- c(8,8,8,8,8,8,8,19,8,8,8)
+set4_y <- c(6.58,5.76,7.71,8.84,8.47,7.04,5.25,12.50,5.56,7.91,6.89)
+data4 <- tibble(set4_x,set4_y)
+ggplot(data=data4) + geom_point(aes(x=set4_x, y=set4_y))
+```
+
+
+
+
+# Exercise 2
+
+
+
+Including nice labels in the plots. We have already defined the data, so we just need to plot it
+
+
+### Dataset 1
+```{r}
+p <- ggplot(data=data1)
+p <- p + geom_point(aes(x=set1_x, y=set1_y))
+p <- p + labs(title = "Anscombe Quartet", subtitle="Dataset 1", y= "y values", x = "x values") 
+p
+
+```
+
+
+### Dataset 2
+```{r}
+p <- ggplot(data=data2)
+p <- p + geom_point(aes(x=set2_x, y=set2_y))
+p <- p + labs(title= "Anscombe Quartet", subtitle="Dataset 2", y= "y values", x = "x values")
+p
+```
+
+
+### Dataset 3
+
+```{r}
+p <- ggplot(data=data3)
+p <- p + geom_point(aes(x=set3_x, y=set3_y))
+p <- p + labs(title = "Anscombe Quartet", subtitle="Dataset 3", y= "y values", x = "x values")
+p
+```
+
+
+
+### Dataset 4
+
+```{r}
+p <- ggplot(data=data4)
+p <- p + geom_point(aes(x=set4_x, y=set4_y))
+p <- p + labs(title = "Anscombe Quartet", subtitle="Dataset 4", y= "y values", x = "x values")
+p
+
+```
+
+
+# Exercise 3
+
+Adding colour to the plots in previous exercise.
+
+
+### Dataset 1
+```{r}
+p <- ggplot(data=data1)
+p <- p + geom_point(aes(x=set1_x, y=set1_y), colour="purple")
+p <- p + labs(title = "Anscombe Quartet", subtitle="Dataset 1", y= "y values", x = "x values") 
+p
+
+```
+
+
+### Dataset 2
+```{r}
+p <- ggplot(data=data2)
+p <- p + geom_point(aes(x=set2_x, y=set2_y), colour="orange")
+p <- p + labs(title= "Anscombe Quartet", subtitle="Dataset 2", y= "y values", x = "x values")
+p
+```
+
+
+### Dataset 3
+
+```{r}
+p <- ggplot(data=data3)
+p <- p + geom_point(aes(x=set3_x, y=set3_y), colour = "blue")
+p <- p + labs(title = "Anscombe Quartet", subtitle="Dataset 3", y= "y values", x = "x values")
+p
+```
+
+
+
+### Dataset 4
+
+```{r}
+p <- ggplot(data=data4)
+p <- p + geom_point(aes(x=set4_x, y=set4_y), colour="limegreen")
+p <- p + labs(title = "Anscombe Quartet", subtitle="Dataset 4", y= "y values", x = "x values")
+p
+
+```
+
+
+

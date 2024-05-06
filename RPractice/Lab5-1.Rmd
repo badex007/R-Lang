@@ -1,0 +1,198 @@
+---
+title: "lab5"
+author: '007'
+date: "2024-03-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#load tidyverse
+```{r}
+library(tidyverse)
+```
+
+
+#load libraryies
+```{r}
+library(treemapify)
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+library(ggraph)
+```
+
+```{r}
+library(igraph)
+```
+
+```{r}
+library(ggwordcloud)
+```
+
+#load dataset
+```{r}
+consumptionBySource <- read.csv("consumptionBySource.csv", header = T, stringsAsFactors = T)
+arrivals <- read.csv("arrivals.csv", header = T, stringsAsFactors = T)
+scottishSales <- read.csv("scottishSales.csv", header = T, stringsAsFactors = T)
+
+```
+
+#plotting several variables
+```{r}
+rm(chl)
+chl <- ggplot(channels, aes(n))
+chl <- chl + geom_line(aes(y = electric, colour="electric current"))
+chl <- chl + geom_line(aes(y = length, colour="object's length"))
+chl <- chl + geom_line(aes(y = area, colour= "object's area"))
+chl <- chl + labs(x="Size of stimuli", y="Amount of sensation",title = "Different channels sensation according to level of stimuli",colour="channels")
+chl <- chl + ylim(0,50)
+chl
+```
+
+#Removing electrict colunm
+#do not run
+```{r}
+rm(chl)
+#channels$electric <- NULL
+chl <- ggplot(channels, aes(n))
+chl <- chl + geom_line(aes(y = length, colour="object's length"))
+chl <- chl + geom_line(aes(y = area, colour= "object's area"))
+chl <- chl + labs(x="Size of stimuli", y="Amount of sensation",title = "Different channels sensation according to level of stimuli",colour="channels")
+chl
+```
+
+#restricting rows
+#comming back to fix
+```{r}
+library(tidyverse)
+#rm(chl)
+head(channels)
+channels2 <- channels |> filter(electric < 50)
+
+```
+
+#Facet
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope, aes(Year))
+pre <- pre + geom_line(aes(y = MT.Barrels, colour=Country))
+pre <- pre + facet_grid(Country ~ .)
+pre <- pre + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent")
+pre
+```
+
+#making RStudio decide which y scale is best for each country
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope, aes(Year))
+pre <- pre + geom_line(aes(y = MT.Barrels, colour=Country))
+pre <- pre + facet_grid(Country ~ ., scales = "free_y")
+pre <- pre + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent")
+pre
+```
+
+#using linetype to diffrentiate countries
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope, aes(Year))
+pre <- pre + geom_line(aes(y = MT.Barrels, colour=Country, linetype=Country ))
+pre <- pre + facet_grid(Country ~ ., scales = "free")
+pre <- pre + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour = "European country", linetype ="European country")
+pre
+
+```
+
+#using point in plotting same graph
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope, aes(Year))
+pre <- pre + geom_point(aes(y = MT.Barrels, colour=Country,))
+pre <- pre + facet_grid(Country ~ ., scales = "free_y")
+pre <- pre + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour = "European country",)
+pre
+```
+
+#using both type in plotting same graph
+```{r}
+rm(pre)
+pre <- ggplot(ProvenOilReserveWEurope, aes(Year))
+pre <- pre + geom_point(aes(y = MT.Barrels, colour=Country,))
+pre <- pre + geom_line(aes(y = MT.Barrels, colour=Country,))
+pre <- pre + facet_grid(Country ~ ., scales = "free", space = "free_y")
+pre <- pre + labs(title="Proven oil reserves in Western Europe", y = "Billion barrels of oil equivalent", colour = "European country",)
+pre
+```
+
+#tree MAaps
+```{r}
+rm(sts)
+sts <- ggplot(scottishSales, aes(area = Sales, fill = Category, subgroup=Category, label=City))
+sts <- sts + geom_treemap()
+sts <- sts + geom_treemap_subgroup_border()
+sts <- sts + geom_treemap_text()
+sts <- sts + geom_treemap_subgroup_text()
+sts <- sts + labs(title = "Amount of sale by to product category and city", colour= "Sale category")
+sts
+```
+
+#adding more parameteres to center text
+```{r}
+rm(sts)
+sts <- ggplot(scottishSales, aes(area = Sales, fill = Category, subgroup=Category, label=paste(City,Sales,sep ="\n")))
+sts <- sts + geom_treemap()
+sts <- sts + geom_treemap_subgroup_border(colour = "white", size = 5)
+sts <- sts + geom_treemap_text(place = "centre", size = 11, grow =TRUE)
+sts <- sts + geom_treemap_subgroup_text(place = "centre", grow = TRUE, alpha = 0.25, colour="black", fontface ="italic")
+sts <- sts + labs(title = "Amount of sale by to product category and city", colour= "Sale category")
+sts
+```
+
+#Dendrograms
+#starting by creating a hierarchy
+```{r}
+link_top_2 <- scottishSales |> select(Concept, City) |> unique() |> rename(from=Concept, to=City)
+link2_3 <- scottishSales |> select(City, Sales) |> unique() |> rename(from=City, to=Sales)
+link2_3$to <- as.factor(link2_3$to)
+links <- rbind(link_top_2, link2_3)
+dendro <- graph_from_data_frame(links)
+```
+
+#ploting the dendrogram
+```{r}
+rm(sts)
+sts <- ggraph(dendro, layout = 'dendrogram', circular = FALSE)
+sts <-sts + geom_node_label(aes(label= name), size=3, repel = TRUE, colour="darkgreen", fill="lightyellow", show.legend = TRUE)
+sts <- sts + geom_edge_diagonal(colour="darkgreen")
+sts <- sts + geom_node_point(colour="darkgreen")
+sts <- sts + labs(title="Sales in various stores ")
+sts
+```
+
+#plotting Wordclouds
+```{r}
+destinations <- as.data.frame(table(arrivals$Destination))
+#giving the columns proper names
+names(destinations) <- c("destination","count")
+m <- mean(destinations$count)
+destinations <- destinations |> filter(count>m)
+
+```
+
+#producing the wordcloud
+```{r}
+rm(arv)
+set.seed(123)
+arv <- ggplot(destinations, aes(label = destination, size=count))
+arv <- arv + geom_text_wordcloud_area(colour="blue")
+arv <- arv + scale_size_area(max_size = 40)
+arv <- arv + labs(title = "Most common destination ports for vessels departing from Barcelona")
+arv
+```
+

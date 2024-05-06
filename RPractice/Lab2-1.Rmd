@@ -1,0 +1,108 @@
+---
+title: "Lab2-1"
+author: '007'
+date: "2024-02-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list = ls())
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(ggplot2)
+```
+
+# Histogram plot for pressure
+```{r}
+p <- ggplot(data = pressureTemp, aes(x=Pressure))
+p <- p + geom_histogram(bins=10, fill="blue")
+p
+```
+
+# Histogram plot for Temperature
+```{r}
+t <- ggplot(data = pressureTemp,aes(x=Temperature))
+t <- t + geom_histogram(binwidth = 2, fill="light blue")
+tu
+```
+
+#Bar plot for count
+```{r}
+b <- ggplot(data = pressureTemp, aes(x = Readby))
+b <- b + geom_bar(fill="green")
+b
+```
+
+#consumption file
+```{r}
+consumption <- read.csv("consumption.csv", header = T, stringsAsFactors = T)
+```
+
+#consumption bar vs column plots
+```{r}
+cp <- ggplot(consumption, aes(x=Energy, y=X2030))
+cp <- cp + geom_col(fill="pink")
+cp
+```
+#consumptionTransposed file
+```{r}
+consumptionTransposed <- read.csv("consumptionTransposed.csv", header = T, stringsAsFactors = T)
+```
+
+#consumptionTransposed bar vs column plots
+```{r}
+ct <- ggplot(consumptionTransposed, aes(x=Year, y=Oil))
+ct <- ct + geom_col(fill="grey")
+ct
+```
+
+#changing the column to be a factor 
+```{r}
+consumptionTransposed$Year <- as.factor(consumptionTransposed$Year)
+
+```
+
+#re-plotting the per year 
+```{r}
+ct <- ggplot(consumptionTransposed, aes(x=Year, y=Oil))
+ct <- ct + geom_col(fill="cyan")
+ct
+```
+
+#plot for Coal per year
+```{r}
+ct <- ggplot(consumptionTransposed, aes(x=Year, y=Coal))
+ct <- ct + geom_col(fill="red")
+ct
+```
+
+#Box plots Temperature
+```{r}
+bt <- ggplot(pressureTemp, aes(x=Readby, y=Temperature))
+bt <- bt + geom_boxplot(fill=c("cyan", "blue", "lightgreen"))
+bt
+```
+
+#using terrain color
+```{r}
+bt <- ggplot(pressureTemp, aes(x=Readby, y=Temperature))
+bt <- bt + geom_boxplot(fill=terrain.colors(3))
+bt
+```
+
+#Box plot for pressure
+```{r}
+bp <- ggplot(pressureTemp, aes(x=Readby, y=Pressure))
+bp <- bp + geom_boxplot(fill=topo.colors(3))
+bp
+```
+
